@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
@@ -18,6 +19,8 @@ public class World : MonoBehaviour
 
     public TerrainGenerator terrainGenerator;
     public Vector2Int mapSeedOffset;
+
+    CancellationTokenSource taskTokenSource = new();
 
     //public Dictionary<Vector3Int, ChunkData> chunkDataDictionary = new Dictionary<Vector3Int, ChunkData>();
     //public Dictionary<Vector3Int, ChunkRenderer> chunkDictionary = new Dictionary<Vector3Int, ChunkRenderer>();
@@ -38,6 +41,11 @@ public class World : MonoBehaviour
         };
     }
 
+    private void OnDisable()
+    {
+        taskTokenSource.Cancel();
+    }
+
     public async void GenerateWorld()
     {
         await GenerateWorld(Vector3Int.zero);
@@ -46,7 +54,7 @@ public class World : MonoBehaviour
     private async Task GenerateWorld(Vector3Int position)
     {
 
-        WorldGenerationData worldGenerationData = await Task.Run(() => GetPositionsThatPlayerSees(position));
+        WorldGenerationData worldGenerationData = await Task.Run(() => GetPositionsThatPlayerSees(position), taskTokenSource.Token);
 
         foreach (Vector3Int pos in worldGenerationData.chunkPositionsToRemove)
         {
@@ -58,7 +66,18 @@ public class World : MonoBehaviour
             WorldDataHelper.RemoveChunkData(this, pos);
         }
 
-        ConcurrentDictionary<Vector3Int, ChunkData> dataDict = await CalculateWorldChunkData(worldGenerationData.chunkDataPositionsToCreate);
+        ConcurrentDictionary<Vector3Int, ChunkData> dataDict = null;
+
+        try
+        {
+            dataDict = await CalculateWorldChunkData(worldGenerationData.chunkDataPositionsToCreate);
+        }
+        catch (Exception)
+        {
+            Debug.Log("World Chunk Data calculation has cancelled!");
+            return;
+        }
+
 
         foreach (var calcData in dataDict)
         {
@@ -71,7 +90,15 @@ public class World : MonoBehaviour
             .Select(it => it.Value)
             .ToList();
 
-        meshDataDict = await CreateMeshDataAsync(dataToRender);
+        try
+        {
+            meshDataDict = await CreateMeshDataAsync(dataToRender);
+        }
+        catch (Exception)
+        {
+            Debug.Log("Mesh Data creation has cancelled!");
+            return;
+        }
 
         StartCoroutine(ChunkCreationCoroutine(meshDataDict));
     }
@@ -83,11 +110,14 @@ public class World : MonoBehaviour
         {
             foreach (var data in dataToRender)
             {
+                if (taskTokenSource.Token.IsCancellationRequested)
+                    taskTokenSource.Token.ThrowIfCancellationRequested();
+
                 MeshData meshData = Chunk.GetChunkMeshData(data);
                 dict.TryAdd(data.worldPosition, meshData);
             }
             return dict;
-        });
+        }, taskTokenSource.Token);
     }
 
     private Task<ConcurrentDictionary<Vector3Int, ChunkData>> CalculateWorldChunkData(List<Vector3Int> chunkDataPositionsToCreate)
@@ -98,13 +128,16 @@ public class World : MonoBehaviour
         {
             foreach (var pos in chunkDataPositionsToCreate)
             {
+                if (taskTokenSource.Token.IsCancellationRequested)
+                    taskTokenSource.Token.ThrowIfCancellationRequested();
+
                 ChunkData data = new ChunkData(chunkSize, chunkHeight, this, pos);
                 ChunkData newData = terrainGenerator.GenerateChunkData(data, mapSeedOffset);
 
                 dict.TryAdd(pos, newData);
             }
             return dict;
-        });
+        }, taskTokenSource.Token);
     }
 
     IEnumerator ChunkCreationCoroutine(ConcurrentDictionary<Vector3Int, MeshData> meshDataDict)
