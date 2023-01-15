@@ -1,53 +1,55 @@
-using System;
-using System.Collections;
+using Infinicraft.BlockLayers;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BiomeGenerator : MonoBehaviour
+namespace Infinicraft
 {
-    public int waterThreshold = 50;
-
-    public NoiseSettings biomeNoiseSettings;
-
-    public DomainWarping domainWarping;
-
-    public bool useDomainWarping = true;
-
-    public BlockLayerHandler startLayerHandler;
-
-    public List<BlockLayerHandler> additionalLayerHandlers;
-
-    public ChunkData ProcessChunkColumn(ChunkData data, int x, int z, Vector2Int mapSeedOffset)
+    public class BiomeGenerator : MonoBehaviour
     {
-        biomeNoiseSettings.worldOffset = mapSeedOffset;
-        int groundPosition = GetSurfaceHeightNoise(data.worldPosition.x + x, data.worldPosition.z + z, data.chunkHeight);
+        public int waterThreshold = 50;
 
-        for (int y = data.worldPosition.y; y < data.worldPosition.y + data.chunkHeight; y++)
+        public NoiseSettings biomeNoiseSettings;
+
+        public DomainWarping domainWarping;
+
+        public bool useDomainWarping = true;
+
+        public BlockLayerHandler startLayerHandler;
+
+        public List<BlockLayerHandler> additionalLayerHandlers;
+
+        public ChunkData ProcessChunkColumn(ChunkData data, int x, int z, Vector2Int mapSeedOffset)
         {
-            startLayerHandler.Handle(data, x, y, z, groundPosition, mapSeedOffset);
+            biomeNoiseSettings.worldOffset = mapSeedOffset;
+            int groundPosition = GetSurfaceHeightNoise(data.worldPosition.x + x, data.worldPosition.z + z, data.chunkHeight);
+
+            for (int y = data.worldPosition.y; y < data.worldPosition.y + data.chunkHeight; y++)
+            {
+                startLayerHandler.Handle(data, x, y, z, groundPosition, mapSeedOffset);
+            }
+
+            foreach (var layer in additionalLayerHandlers)
+            {
+                layer.Handle(data, x, data.worldPosition.y, z, groundPosition, mapSeedOffset);
+            }
+            return data;
         }
 
-        foreach (var layer in additionalLayerHandlers)
+        private int GetSurfaceHeightNoise(int x, int z, int chunkHeight)
         {
-            layer.Handle(data, x, data.worldPosition.y, z, groundPosition, mapSeedOffset);
-        }
-        return data;
-    }
+            float terrainHeight;
+            if (useDomainWarping == false)
+            {
+                terrainHeight = MyNoise.OctavePerlin(x, z, biomeNoiseSettings);
+            }
+            else
+            {
+                terrainHeight = domainWarping.GenerateDomainNoise(x, z, biomeNoiseSettings);
+            }
 
-    private int GetSurfaceHeightNoise(int x, int z, int chunkHeight)
-    {
-        float terrainHeight;
-        if(useDomainWarping == false)
-        {
-            terrainHeight = MyNoise.OctavePerlin(x, z, biomeNoiseSettings);
+            terrainHeight = MyNoise.Redistribution(terrainHeight, biomeNoiseSettings);
+            int surfaceHeight = MyNoise.RemapValue01ToInt(terrainHeight, 0, chunkHeight);
+            return surfaceHeight;
         }
-        else
-        {
-            terrainHeight = domainWarping.GenerateDomainNoise(x, z, biomeNoiseSettings);
-        }
-
-        terrainHeight = MyNoise.Redistribution(terrainHeight, biomeNoiseSettings);
-        int surfaceHeight = MyNoise.RemapValue01ToInt(terrainHeight, 0, chunkHeight);
-        return surfaceHeight;
     }
 }

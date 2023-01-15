@@ -1,18 +1,19 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class UndergroundLayerHandler : BlockLayerHandler
+namespace Infinicraft.BlockLayers
 {
-    public BlockType undergroundBlockType;
-    protected override bool TryHandling(ChunkData chunkData, int x, int y, int z, int surfaceHeightNoise, Vector2Int mapSeedOffset)
+    public class UndergroundLayerHandler : BlockLayerHandler
     {
-        if (y < surfaceHeightNoise)
+        public BlockType undergroundBlockType;
+        protected override bool TryHandling(ChunkData chunkData, int x, int y, int z, int surfaceHeightNoise, Vector2Int mapSeedOffset)
         {
-            Vector3Int pos = new Vector3Int(x, y, z);
-            Chunk.SetBlock(chunkData, pos, undergroundBlockType);
-            return true;
+            if (y < surfaceHeightNoise)
+            {
+                Vector3Int pos = new Vector3Int(x, y, z);
+                Chunk.SetBlock(chunkData, pos, undergroundBlockType);
+                return true;
+            }
+            return false;
         }
-        return false;
     }
 }

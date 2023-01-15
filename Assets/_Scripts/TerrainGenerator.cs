@@ -1,21 +1,21 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class TerrainGenerator : MonoBehaviour
+namespace Infinicraft
 {
-    public BiomeGenerator biomeGenerator;
-
-    public ChunkData GenerateChunkData(ChunkData data, Vector2Int mapSeedOffset)
+    public class TerrainGenerator : MonoBehaviour
     {
-        for (int x = 0; x < data.chunkSize; x++)
+        public BiomeGenerator biomeGenerator;
+
+        public ChunkData GenerateChunkData(ChunkData data, Vector2Int mapSeedOffset)
         {
-            for (int z = 0; z < data.chunkSize; z++)
+            for (int x = 0; x < data.chunkSize; x++)
             {
-                data = biomeGenerator.ProcessChunkColumn(data, x, z, mapSeedOffset);
+                for (int z = 0; z < data.chunkSize; z++)
+                {
+                    data = biomeGenerator.ProcessChunkColumn(data, x, z, mapSeedOffset);
+                }
             }
+            return data;
         }
-        return data;
     }
 }
