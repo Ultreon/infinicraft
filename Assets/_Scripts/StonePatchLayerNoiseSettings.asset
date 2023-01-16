@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: StonePatchLayerNoiseSettings
   m_EditorClassIdentifier: 
   noiseZoom: 0.01
-  octaves: 5
+  octaves: 6
   offest: {x: 48303, y: 85746}
   worldOffset: {x: 0, y: 0}
-  persistance: 0.5
+  persistance: 0.35
   redistributionModifier: 0.25
   exponent: 0.625
