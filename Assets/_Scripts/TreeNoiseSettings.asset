@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: TreeNoiseSettings
   m_EditorClassIdentifier: 
   noiseZoom: 0.01
-  octaves: 1
+  octaves: 5
   offest: {x: 300, y: 5000}
   worldOffset: {x: 0, y: 0}
-  persistance: 0.01
+  persistance: 0.1
   redistributionModifier: 1.2
   exponent: 4

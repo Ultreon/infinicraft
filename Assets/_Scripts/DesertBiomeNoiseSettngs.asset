@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 659e71c10a9785e4ca6610234b347e2c, type: 3}
-  m_Name: Sea Biome
+  m_Name: DesertBiomeNoiseSettngs
   m_EditorClassIdentifier: 
   noiseZoom: 0.01
   octaves: 5
-  offset: {x: -100, y: 3400}
+  offest: {x: -100, y: 3400}
   worldOffset: {x: 0, y: 0}
-  persistance: 0.3
-  redistributionModifier: 0.025
-  exponent: 0.375
+  persistance: 0.5
+  redistributionModifier: 0.1
+  exponent: 0.44
