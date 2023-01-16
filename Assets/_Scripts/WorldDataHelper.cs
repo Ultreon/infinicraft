@@ -6,13 +6,13 @@ namespace Infinicraft
 {
     public static class WorldDataHelper
     {
-        public static Vector3Int ChunkPositionFromBlockCoords(World world, Vector3Int position)
+        public static Vector3Int ChunkPositionFromBlockCoords(World world, Vector3Int woldBlockPos)
         {
             return new Vector3Int
             {
-                x = Mathf.FloorToInt(position.x / (float)world.chunkSize) * world.chunkSize,
-                y = Mathf.FloorToInt(position.y / (float)world.chunkHeight) * world.chunkHeight,
-                z = Mathf.FloorToInt(position.z / (float)world.chunkSize) * world.chunkSize
+                x = Mathf.FloorToInt(woldBlockPos.x / (float)world.chunkSize) * world.chunkSize,
+                y = Mathf.FloorToInt(woldBlockPos.y / (float)world.chunkHeight) * world.chunkHeight,
+                z = Mathf.FloorToInt(woldBlockPos.z / (float)world.chunkSize) * world.chunkSize
             };
         }
 
@@ -100,19 +100,19 @@ namespace Infinicraft
             return null;
         }
 
-        internal static void SetBlock(World worldReference, Vector3Int pos, BlockType blockType)
+        internal static void SetBlock(World worldReference, Vector3Int worldBlockPos, BlockType blockType)
         {
-            ChunkData chunkData = GetChunkData(worldReference, pos);
+            ChunkData chunkData = GetChunkData(worldReference, worldBlockPos);
             if (chunkData != null)
             {
-                Vector3Int localPosition = Chunk.GetBlockInChunkCoordinates(chunkData, pos);
+                Vector3Int localPosition = Chunk.GetBlockInChunkCoordinates(chunkData, worldBlockPos);
                 Chunk.SetBlock(chunkData, localPosition, blockType);
             }
         }
 
-        public static ChunkData GetChunkData(World worldReference, Vector3Int pos)
+        public static ChunkData GetChunkData(World worldReference, Vector3Int worldBlockPos)
         {
-            Vector3Int chunkPosition = ChunkPositionFromBlockCoords(worldReference, pos);
+            Vector3Int chunkPosition = ChunkPositionFromBlockCoords(worldReference, worldBlockPos);
 
             ChunkData containerChunk = null;
 

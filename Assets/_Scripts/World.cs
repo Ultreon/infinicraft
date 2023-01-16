@@ -74,9 +74,10 @@ namespace Infinicraft
             {
                 dataDict = await CalculateWorldChunkData(worldGenerationData.chunkDataPositionsToCreate);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 Debug.Log("World Chunk Data calculation has cancelled!");
+                Debug.LogWarning(e);
                 return;
             }
 
@@ -84,6 +85,11 @@ namespace Infinicraft
             foreach (var calcData in dataDict)
             {
                 worldData.chunkDataDictionary.Add(calcData.Key, calcData.Value);
+            }
+
+            foreach (var chunkData in worldData.chunkDataDictionary.Values)
+            {
+                AddTreeLeaves(chunkData);
             }
 
             ConcurrentDictionary<Vector3Int, MeshData> meshDataDict = new();
@@ -96,13 +102,22 @@ namespace Infinicraft
             {
                 meshDataDict = await CreateMeshDataAsync(dataToRender);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 Debug.Log("Mesh Data creation has cancelled!");
+                Debug.LogWarning(e);
                 return;
             }
 
             StartCoroutine(ChunkCreationCoroutine(meshDataDict));
+        }
+
+        private void AddTreeLeaves(ChunkData chunkData)
+        {
+            foreach (var treeLeaves in chunkData.treeData.treeLeavesSolid)
+            {
+                Chunk.SetBlock(chunkData, treeLeaves, BlockType.TreeLeavesSolid);
+            }
         }
 
         private Task<ConcurrentDictionary<Vector3Int, MeshData>> CreateMeshDataAsync(List<ChunkData> dataToRender)

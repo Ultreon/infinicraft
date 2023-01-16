@@ -9,8 +9,8 @@ namespace Infinicraft
         Grass_Stone,
         Stone,
         TreeTrunk,
-        TreeLeafesTransparent,
-        TreeLeafsSolid,
+        TreeLeavesTransparent,
+        TreeLeavesSolid,
         Water,
         Sand
     }

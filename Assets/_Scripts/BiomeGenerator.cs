@@ -1,4 +1,6 @@
 using Infinicraft.BlockLayers;
+using Infinicraft.Trees;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -18,6 +20,8 @@ namespace Infinicraft
 
         public List<BlockLayerHandler> additionalLayerHandlers;
 
+        public TreeGenerator treeGenerator;
+
         public ChunkData ProcessChunkColumn(ChunkData data, int x, int z, Vector2Int mapSeedOffset)
         {
             biomeNoiseSettings.worldOffset = mapSeedOffset;
@@ -33,6 +37,14 @@ namespace Infinicraft
                 layer.Handle(data, x, data.worldPosition.y, z, groundPosition, mapSeedOffset);
             }
             return data;
+        }
+
+        public TreeData GetTreeData(ChunkData data, Vector2Int mapSeedOffset)
+        {
+            if (treeGenerator == null)
+                return new TreeData();
+
+            return treeGenerator.GenerateTreeData(data, mapSeedOffset);
         }
 
         private int GetSurfaceHeightNoise(int x, int z, int chunkHeight)

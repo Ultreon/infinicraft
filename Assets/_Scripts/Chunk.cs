@@ -67,7 +67,7 @@ namespace Infinicraft
             }
             else
             {
-                WorldDataHelper.SetBlock(chunkData.worldReference, localPosition, block);
+                WorldDataHelper.SetBlock(chunkData.worldReference, localPosition + chunkData.worldPosition, block);
             }
         }
 
@@ -138,7 +138,7 @@ namespace Infinicraft
             return neighboursToUpdate;
         }
 
-        internal static bool IsOnEdge(ChunkData chunkData, Vector3Int worldPosition)
+        public static bool IsOnEdge(ChunkData chunkData, Vector3Int worldPosition)
         {
             Vector3Int chunkPosition = GetBlockInChunkCoordinates(chunkData, worldPosition);
             if (
