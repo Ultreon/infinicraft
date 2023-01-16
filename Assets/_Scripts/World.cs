@@ -55,6 +55,7 @@ namespace Infinicraft
 
         private async Task GenerateWorld(Vector3Int position)
         {
+            terrainGenerator.GenerateBiomePoints(position, chunkDrawingRange, chunkSize, mapSeedOffset);
 
             WorldGenerationData worldGenerationData = await Task.Run(() => GetPositionsThatPlayerSees(position), taskTokenSource.Token);
 
@@ -185,6 +186,9 @@ namespace Infinicraft
                 return false;
 
             Vector3Int pos = GetBlockPos(hit);
+
+            if (pos.y <= 0)
+                return false;
 
             WorldDataHelper.SetBlock(chunk.ChunkData.worldReference, pos, blockType);
             chunk.ModifiedByThePlayer = true;

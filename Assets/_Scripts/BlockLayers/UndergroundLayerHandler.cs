@@ -9,7 +9,7 @@ namespace Infinicraft.BlockLayers
         {
             if (y < surfaceHeightNoise)
             {
-                Vector3Int pos = new Vector3Int(x, y, z);
+                Vector3Int pos = new Vector3Int(x, y - chunkData.worldPosition.y, z);
                 Chunk.SetBlock(chunkData, pos, undergroundBlockType);
                 return true;
             }
